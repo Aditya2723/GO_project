@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Lead</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Update Lead</h1>
+
+    <form id="updateForm">
+        <label for="leadId">Lead ID:</label>
+        <input type="text" id="leadId" name="leadId" disabled>
+        <div>
+            <label for="loanType">Loan Type:</label>
+            <input type="text" id="loanType" name="loanType">
+        </div>
+        <div>
+            <label for="loanAmount">Loan Amount:</label>
+            <input type="text" id="loanAmount" name="loanAmount">
+        </div>
+        <div>
+            <label for="tenure">Tenure:</label>
+            <input type="text" id="tenure" name="tenure">
+        </div>
+        <div>
+            <label for="pincode">Pincode:</label>
+            <input type="text" id="pincode" name="pincode">
+        </div>
+        <div>
+            <label for="employmentType">Employment Type:</label>
+            <input type="text" id="employmentType" name="employmentType">
+        </div>
+        <div>
+            <label for="grossMonthlyIncome">Gross Monthly Income:</label>
+            <input type="text" id="grossMonthlyIncome" name="grossMonthlyIncome">
+        </div>
+        <button type="submit" id="updateButton">Update</button>
+    </form>
+    
+    <script>
+        $(document).ready(function() {
+            // Retrieve the lead ID from the query parameter
+            var leadId = new URLSearchParams(window.location.search).get('id');
+           
+            if (leadId) {
+                loadLeadDetails(leadId);
+            }
+        });
+
+        function loadLeadDetails(leadId) {
+            $.ajax({
+                url: "/lead/get/" + leadId,
+                method: "GET",
+                dataType: "json",
+                success: function(response) {
+                    var lead = response.data[0];
+                    if (lead) {
+                        $('#leadId').val(lead.id);
+                        $('#loanType').val(lead.loan_type);
+                        $('#loanAmount').val(lead.loan_amount);
+                        $('#tenure').val(lead.tenure);
+                        $('#pincode').val(lead.pincode);
+                        $('#employmentType').val(lead.employment_type);
+                        $('#grossMonthlyIncome').val(lead.gross_monthly_income);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        $(document).on('submit', '#updateForm', function(event) {
+            event.preventDefault();
+
+            // Get the form data
+            var form_data = {
+                "Loan_type": $('#loanType').val(),
+                "Loan_amount": parseFloat($('#loanAmount').val()),
+                "tenure": parseInt($('#tenure').val()),
+                "pincode": parseInt($('#pincode').val()),
+                "Employment_type": $('#employmentType').val(),
+                "Gross_monthly_income": parseFloat($('#grossMonthlyIncome').val())
+            };
+
+            // Retrieve the lead ID from the query parameter
+            var leadId = new URLSearchParams(window.location.search).get('id');
+
+            // Send the update request
+            $.ajax({
+                url: "/lead/update/" + leadId,
+                method: "PATCH",
+                data: JSON.stringify(form_data),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert("Lead updated successfully!");
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

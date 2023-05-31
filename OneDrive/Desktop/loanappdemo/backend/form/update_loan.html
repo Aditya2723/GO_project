@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update loan</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Update loan</h1>
+
+    <form id="updateForm">
+        <label for="loanId">loan ID:</label>
+        <input type="text" id="loanId" name="loanId" disabled>
+        <div>
+            <label for="loanType">Loan Type:</label>
+            <input type="text" id="loanType" name="loanType">
+        </div>
+        <div>
+            <label for="loanAmount">Loan Amount:</label>
+            <input type="text" id="loanAmount" name="loanAmount">
+        </div>
+        <div>
+            <label for="tenure">Tenure:</label>
+            <input type="text" id="tenure" name="tenure">
+        </div>
+        <div>
+            <label for="pincode">Pincode:</label>
+            <input type="text" id="pincode" name="pincode">
+        </div>
+        <div>
+            <label for="employmentType">Employment Type:</label>
+            <input type="text" id="employmentType" name="employmentType">
+        </div>
+        <div>
+            <label for="grossMonthlyIncome">Gross Monthly Income:</label>
+            <input type="text" id="grossMonthlyIncome" name="grossMonthlyIncome">
+        </div>
+        <div>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" disabled>
+        </div>
+        <button type="submit" id="updateButton">Update</button>
+    </form>
+    
+    <script>
+        $(document).ready(function() {
+            // Retrieve the loan ID from the query parameter
+            var loanId = new URLSearchParams(window.location.search).get('id');
+           
+            if (loanId) {
+                loadloanDetails(loanId);
+            }
+        });
+
+        function loadloanDetails(loanId) {
+            $.ajax({
+                url: "/loan/index/" + loanId,
+                method: "GET",
+                dataType: "json",
+                success: function(response) {
+                    var loan = response.data[0];
+                    if (loan) {
+                        $('#loanId').val(loan.id);
+                        $('#loanType').val(loan.loan_type);
+                        $('#loanAmount').val(loan.loan_amount);
+                        $('#tenure').val(loan.tenure);
+                        $('#pincode').val(loan.pincode);
+                        $('#employmentType').val(loan.employment_type);
+                        $('#grossMonthlyIncome').val(loan.gross_monthly_income);
+                        $('#status').val(loan.status);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        $(document).on('submit', '#updateForm', function(event) {
+            event.preventDefault();
+
+            // Get the form data
+            var form_data = {
+                "Loan_type": $('#loanType').val(),
+                "Loan_amount": parseFloat($('#loanAmount').val()),
+                "tenure": parseInt($('#tenure').val()),
+                "pincode": parseInt($('#pincode').val()),
+                "Employment_type": $('#employmentType').val(),
+                "Gross_monthly_income": parseFloat($('#grossMonthlyIncome').val())
+            };
+
+            // Retrieve the loan ID from the query parameter
+            var loanId = new URLSearchParams(window.location.search).get('id');
+
+            // Send the update request
+            $.ajax({
+                url: "/loan/update/" + loanId,
+                method: "PATCH",
+                data: JSON.stringify(form_data),
+                contentType: 'application/json',
+                success: function(response) {
+                    //alert("loan updated successfully!");
+                    window.location.href = "/form/loan.html"
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

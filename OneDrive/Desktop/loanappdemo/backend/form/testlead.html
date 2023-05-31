@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lead Table</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Lead Table</h1>
+    <table id="leadTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Loan Type</th>
+                <th>Loan Amount</th>
+                <th>Tenure</th>
+                <th>Pincode</th>
+                <th>Employment Type</th>
+                <th>Gross Monthly Income</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            loadLeadTable();
+        });
+
+        function loadLeadTable() {
+            $.ajax({
+                url: "/lead/admin",
+                method: "GET",
+                dataType: "json",
+                success: function(response) {
+                    if (response && response.data) {
+                        displayLeads(response.data);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        function displayLeads(leads) {
+            var tableBody = $('#leadTable tbody');
+            tableBody.empty();
+
+            leads.forEach(function(lead) {
+                var row = $('<tr></tr>');
+                row.append('<td>' + lead.id + '</td>');
+                row.append('<td>' + lead.loan_type + '</td>');
+                row.append('<td>' + lead.loan_amount + '</td>');
+                row.append('<td>' + lead.tenure + '</td>');
+                row.append('<td>' + lead.pincode + '</td>');
+                row.append('<td>' + lead.employment_type + '</td>');
+                row.append('<td>' + lead.gross_monthly_income + '</td>');
+                row.append('<td>' + getStatusText(lead.status) + '</td>');
+                row.append('<td><a href="http://localhost:9000/form/testupdatelead.html?id=' + lead.id + '">Update</a> | <a href="#" onclick="deleteLead(' + lead.id + ')">Delete</a></td>');
+                tableBody.append(row);
+            });
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 2:
+                    return 'Approved';
+                case 3:
+                    return 'Declined';
+                default:
+                    return 'Pending';
+            }
+        }
+
+        function redirectToUpdateForm(id) {
+            window.location.href = "/form/testupdatelead.html?id=" + id;
+        }
+
+        function deleteLead(id) {
+            $.ajax({
+                url: "/lead/delete/" + id,
+                method: "DELETE",
+                success: function(response) {
+                    // Handle the response
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+            alert("Delete lead with ID: " + id);
+        }
+    </script>
+</body>
+</html>
